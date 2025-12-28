@@ -1,5 +1,3 @@
-// Simple Node.js app for SAST testing
-
 function add(a, b) {
   return a + b;
 }
