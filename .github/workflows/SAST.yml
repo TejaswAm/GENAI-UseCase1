@@ -25,10 +25,10 @@ jobs:
               throw new Error("OPENAI_API_KEY is not set");
             }
 
-            // Read code file, limit to first 200 lines to reduce token usage
+            // Read code file, limit to first 50 lines to reduce token usage
             const code = fs.readFileSync("src/app.js", "utf8")
               .split("\n")
-              .slice(0, 200)
+              .slice(0, 50)
               .join("\n");
 
             const prompt = `
