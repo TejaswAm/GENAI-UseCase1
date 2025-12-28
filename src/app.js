@@ -1,29 +1,21 @@
-const express = require("express");
-const app = express();
+// Simple Node.js app for SAST testing
 
-// ❌ Hardcoded secret (SAST should detect)
-const DB_PASSWORD = "admin123";
+function add(a, b) {
+  return a + b;
+}
 
-app.use(express.json());
+function unsafeEval(userInput) {
+  // Example of a vulnerability
+  eval(userInput); // ⚠️ SAST should catch this
+}
 
-// ❌ SQL Injection style vulnerability
-app.get("/user", (req, res) => {
-  const userId = req.query.id;
-  const query = "SELECT * FROM users WHERE id = " + userId;
-  res.send(`Executing query: ${query}`);
-});
+const secret = "my_secret_key";
 
-// ❌ No input validation
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+function logMessage(msg) {
+  console.log(msg);
+}
 
-  if (username === "admin" && password === "admin") {
-    res.send("Login successful");
-  } else {
-    res.status(401).send("Unauthorized");
-  }
-});
-
-app.listen(3000, () => {
-  console.log("App running on port 3000");
-});
+// Test calls
+add(2, 3);
+unsafeEval("console.log('test')");
+logMessage("Hello world!");
