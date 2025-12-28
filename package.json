@@ -1,0 +1,12 @@
+{
+  "name": "genai-github-automation",
+  "version": "1.0.0",
+  "description": "Simple Node.js app for GenAI PR review, issue triage, and SAST",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
