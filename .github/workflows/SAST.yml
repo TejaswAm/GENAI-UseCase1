@@ -8,20 +8,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: AI SAST Scan
+      - name: AI SAST Scan with OpenAI
         uses: actions/github-script@v7
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         with:
           script: |
             const fs = require("fs");
+
+            // ✅ Fail fast if key is missing
+            if (!process.env.OPENAI_API_KEY) {
+              throw new Error("OPENAI_API_KEY is not set");
+            }
+
             const code = fs.readFileSync("src/app.js", "utf8");
 
             const prompt = `
-            Perform SAST analysis.
-            List vulnerabilities with severity and remediation steps.
+            Perform a Static Application Security Testing (SAST) analysis.
+            Identify vulnerabilities with:
+            - Vulnerability name
+            - Severity (Low / Medium / High)
+            - Explanation
+            - Recommended remediation
 
             Code:
             ${code}
@@ -34,11 +45,23 @@ jobs:
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: [{ role: "user", content: prompt }]
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0
               })
             });
 
             const data = await response.json();
-            console.log("AI SAST Report:");
-            console.log(data.choices[0].message.content);
+
+            // 🔍 Debug output to identify API errors
+            console.log("OpenAI raw response:", JSON.stringify(data, null, 2));
+
+            // ✅ Defensive check (FIXES your error)
+            if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
+              throw new Error(`OpenAI API returned no choices. Response: ${JSON.stringify(data)}`);
+            }
+
+            const report = data.choices[0].message?.content || "No vulnerabilities found.";
+
+            console.log("===== AI SAST REPORT =====");
+            console.log(report);
